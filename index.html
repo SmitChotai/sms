@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <select id="role">
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+      <option value="admin">Admin</option>
+    </select><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <h3>New Student? <a href="register.html">Register here</a></h3>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgXG-oIsLygIUwC4H5xUcduHqWa1Kba5w",
+      authDomain: "studentattendancesystem-e3f6c.firebaseapp.com",
+      projectId: "studentattendancesystem-e3f6c",
+      storageBucket: "studentattendancesystem-e3f6c.appspot.com",
+      messagingSenderId: "385675923275",
+      appId: "1:385675923275:web:945301f83c5a7d182162ce"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loginForm = document.getElementById("loginForm");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const selectedRole = document.getElementById("role").value;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          if (userData.role === selectedRole) {
+            if (selectedRole === "student") {
+              window.location.href = "student.html";
+            } else if (selectedRole === "teacher") {
+              window.location.href = "teacher.html";
+            } else if (selectedRole === "admin") {
+              window.location.href = "admin.html";
+            }
+          } else {
+            alert("Role mismatch! Please choose the correct role.");
+          }
+        } else {
+          alert("User role not found in database.");
+        }
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher - Mark Attendance</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    select, button {
+      margin: 10px 0;
+      padding: 5px;
+    }
+
+    .student-line {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Teacher Dashboard</h2>
+  <p id="teacherEmail">Loading...</p>
+
+  <label>Department:</label>
+  <select id="department">
+    <option value="CS">CS</option>
+    <option value="IT">IT</option>
+  </select>
+
+  <label>Semester:</label>
+  <select id="semester">
+    <option value="1">1</option>
+    <option value="2">2</option>
+  </select>
+
+  <label>Subject:</label>
+  <select id="subjectSelect"></select>
+
+  <label>Type:</label>
+  <select id="classType">
+    <option value="Lecture">Lecture</option>
+    <option value="Lab">Lab</option>
+  </select>
+
+  <label>Date:</label>
+  <input type="date" id="attendanceDate" />
+
+  <br><br>
+  <button id="loadBtn">📥 Load Students</button>
+
+  <form id="attendanceForm"></form>
+
+  <button id="submitBtn">✅ Submit Attendance</button>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getFirestore, collection, query, where, getDocs, setDoc, doc, orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgXG-oIsLygIUwC4H5xUcduHqWa1Kba5w",
+      authDomain: "studentattendancesystem-e3f6c.firebaseapp.com",
+      projectId: "studentattendancesystem-e3f6c",
+      storageBucket: "studentattendancesystem-e3f6c.appspot.com",
+      messagingSenderId: "385675923275",
+      appId: "1:385675923275:web:945301f83c5a7d182162ce",
+      measurementId: "G-DM0VLMVNTM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentTeacherId = null;
+    const teacherEmailElem = document.getElementById("teacherEmail");
+    const subjectSelect = document.getElementById("subjectSelect");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("Login required!");
+        window.location.href = "index.html";
+      } else {
+        currentTeacherId = user.uid;
+        teacherEmailElem.textContent = `Logged in as: ${user.email}`;
+        await loadAssignedSubjects();
+      }
+    });
+
+    async function loadAssignedSubjects() {
+      subjectSelect.innerHTML = "";
+      const dept = document.getElementById("department").value;
+      const sem = document.getElementById("semester").value;
+
+      const q = query(collection(db, "assignments"),
+        where("teacherId", "==", currentTeacherId),
+        where("department", "==", dept),
+        where("semester", "==", sem)
+      );
+
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const option = document.createElement("option");
+        option.value = `${data.subject}__${data.type}`;
+        option.textContent = `${data.subject} (${data.type})`;
+        subjectSelect.appendChild(option);
+      });
+    }
+
+    document.getElementById("department").addEventListener("change", loadAssignedSubjects);
+    document.getElementById("semester").addEventListener("change", loadAssignedSubjects);
+
+    const studentDataMap = {};
+
+    async function loadStudents() {
+      const department = document.getElementById("department").value;
+      const semester = document.getElementById("semester").value;
+      const form = document.getElementById("attendanceForm");
+      form.innerHTML = "";
+
+      try {
+        const q = query(
+          collection(db, "users"),
+          where("role", "==", "student"),
+          where("department", "==", department),
+          where("semester", "==", semester),
+          orderBy("enrollno")  // ✅ Sorted by enrollno
+        );
+
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          form.innerHTML = "<p>No students found for selected dept & semester.</p>";
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const student = doc.data();
+          const id = doc.id;
+          studentDataMap[id] = student;
+
+          const div = document.createElement("div");
+          div.className = "student-line";
+
+          const label = document.createElement("label");
+          label.textContent = `${student.enrollno} - ${student.name}: `;
+
+          const presentRadio = document.createElement("input");
+          presentRadio.type = "radio";
+          presentRadio.name = id;
+          presentRadio.value = "Present";
+          presentRadio.required = true;
+
+          const absentRadio = document.createElement("input");
+          absentRadio.type = "radio";
+          absentRadio.name = id;
+          absentRadio.value = "Absent";
+
+          div.appendChild(label);
+          div.appendChild(presentRadio);
+          div.append(" Present ");
+          div.appendChild(absentRadio);
+          div.append(" Absent");
+
+          form.appendChild(div);
+        });
+      } catch (error) {
+        console.error("Error fetching students:", error);
+        form.innerHTML = "<p>Error fetching student data.</p>";
+      }
+    }
+
+    async function submitAttendance() {
+      const form = document.getElementById("attendanceForm");
+      const selected = document.getElementById("subjectSelect").value.split("__");
+      const subject = selected[0];
+      const type = selected[1];
+      const date = document.getElementById("attendanceDate").value;
+
+      if (!date) {
+        alert("Please select a date!");
+        return;
+      }
+
+      for (const el of form.elements) {
+        if (el.checked) {
+          const studentId = el.name;
+          const status = el.value;
+          const student = studentDataMap[studentId];
+          const enrollno = student?.enrollno || "N/A";
+          const email = student?.email || "N/A";
+
+          const attendanceDocId = `${studentId}_${subject}_${type}_${date}`;
+
+          await setDoc(doc(db, "attendance", attendanceDocId), {
+            studentEmail: email,
+            studentId: studentId,
+            subject: subject,
+            type: type,
+            status: status,
+            date: date,
+            enrollno: enrollno,
+          });
+        }
+      }
+
+      alert("✅ Attendance submitted!");
+      form.reset();
+    }
+
+    document.getElementById("loadBtn").addEventListener("click", loadStudents);
+    document.getElementById("submitBtn").addEventListener("click", submitAttendance);
+  </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Student Registration</title>
+</head>
+
+<body>
+  <h2>Student Registration</h2>
+  <form id="registerForm">
+    <label for="enrollno">Roll Number:</label><br>
+    <input type="text" id="enrollno" required>
+    <br><br>
+    <label>Name:</label><br>
+    <input type="text" id="name" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" id="email" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" id="password" required><br><br>
+
+    <label>Department:</label><br>
+    <select id="department" required>
+      <option value="CS">CS</option>
+      <option value="IT">IT</option>
+      <option value="ECE">ECE</option>
+      <!-- Add more departments if needed -->
+    </select><br><br>
+
+    <label>Semester:</label><br>
+    <select id="semester" required>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <!-- Add more semesters if needed -->
+    </select><br><br>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <p>Already have an account? <a href="index.html">Login here</a></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgXG-oIsLygIUwC4H5xUcduHqWa1Kba5w",
+      authDomain: "studentattendancesystem-e3f6c.firebaseapp.com",
+      projectId: "studentattendancesystem-e3f6c",
+      storageBucket: "studentattendancesystem-e3f6c.appspot.com",
+      messagingSenderId: "385675923275",
+      appId: "1:385675923275:web:945301f83c5a7d182162ce",
+      measurementId: "G-DM0VLMVNTM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const department = document.getElementById("department").value;
+      const semester = document.getElementById("semester").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        await setDoc(doc(db, "users", uid), {
+          name,
+          email,
+          role: "student",
+          department,
+          semester,
+          enrollno: document.getElementById("enrollno").value // Corrected ID
+        });
+
+
+
+        alert("Registration successful!");
+        window.location.href = "student.html";
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
+</body>
+
+</html>
