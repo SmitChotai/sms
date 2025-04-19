@@ -4,12 +4,152 @@
 <head>
   <meta charset="UTF-8">
   <title>Student Registration</title>
+  <style>
+/* Student Registration System - CSS */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f8ff; /* Light blue background */
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    color: #2c3e50;
+}
+
+h2 {
+    color: #1a5276;
+    margin: 25px 0;
+    font-size: 2rem;
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: #3498db;
+}
+
+#registerForm {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232980b9'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+button[type="submit"] {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button[type="submit"]:hover {
+    background-color: #1a5276;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+p {
+    text-align: center;
+    color: #5d6d7e;
+    margin-top: 20px;
+}
+
+a {
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #registerForm {
+        padding: 20px;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animation for form elements */
+input, select {
+    transition: all 0.3s ease;
+}
+
+/* Department-specific colors in dropdown */
+option[value="CSE"] { background-color: #e3f2fd; }
+option[value="IT"] { background-color: #e8f5e9; }
+option[value="CE"] { background-color: #fff3e0; }
+  </style>
 </head>
 
 <body>
   <h2>Student Registration</h2>
   <form id="registerForm">
-    <label for="enrollno">Roll Number:</label><br>
+    <label for="enrollno">Enrollment Number:</label><br>
     <input type="text" id="enrollno" required>
     <br><br>
     <label>Name:</label><br>
@@ -23,9 +163,9 @@
 
     <label>Department:</label><br>
     <select id="department" required>
-      <option value="CS">CS</option>
+      <option value="CSE">CSE</option>
       <option value="IT">IT</option>
-      <option value="ECE">ECE</option>
+      <option value="CE">CE</option>
       <!-- Add more departments if needed -->
     </select><br><br>
 
@@ -35,6 +175,8 @@
       <option value="2">2</option>
       <option value="3">3</option>
       <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
       <!-- Add more semesters if needed -->
     </select><br><br>
 
