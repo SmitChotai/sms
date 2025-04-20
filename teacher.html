@@ -1,38 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Teacher - Mark Attendance</title>
   <style>
+    /* Teacher Dashboard Styles */
     body {
-      font-family: Arial;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f9fc;
+      margin: 0;
       padding: 20px;
+      color: #2c3e50;
+      max-width: 1200px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
-    select, button {
-      margin: 10px 0;
-      padding: 5px;
+    h2 {
+      color: #1a5276;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+      font-size: 28px;
     }
 
-    .student-line {
+    #teacherEmail {
+      background-color: #e3f2fd;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-bottom: 20px;
+      font-weight: 500;
+      color: #1a5276;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 8px 0;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    select,
+    input[type="date"] {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px;
+      border: 2px solid #d6eaf8;
+      border-radius: 6px;
+      background-color: white;
+      font-size: 16px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232980b9'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      appearance: none;
+      padding-right: 40px;
+    }
+
+    select:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    button {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
       margin: 10px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: #1a5276;
+      transform: translateY(-2px);
+    }
+
+    #loadBtn {
+      background-color: #27ae60;
+      margin-top: 20px;
+    }
+
+    #loadBtn:hover {
+      background-color: #219653;
+    }
+
+    #submitBtn {
+      background-color: #2ecc71;
+      margin-top: 30px;
+      padding: 14px 24px;
+      font-size: 17px;
+    }
+
+    #submitBtn:hover {
+      background-color: #27ae60;
+    }
+
+    /* Attendance Form Styles */
+    #attendanceForm {
+      margin: 30px 0;
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .student-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .student-row:last-child {
+      border-bottom: none;
+    }
+
+    .student-row:hover {
+      background-color: #f8f9fa;
+    }
+
+    .student-info {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .attendance-options {
+      display: flex;
+      gap: 15px;
+    }
+
+    .attendance-options label {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .student-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .attendance-options {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* Filter Controls Container */
+    .filter-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    th,
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    /* Logout Button */
+    #logoutBtn {
+      background-color: #e74c3c;
+      margin-left: 15px;
+    }
+
+    #logoutBtn:hover {
+      background-color: #c0392b;
     }
   </style>
 </head>
+
 <body>
   <h2>Teacher Dashboard</h2>
   <p id="teacherEmail">Loading...</p>
 
   <label>Department:</label>
   <select id="department">
-    <option value="CS">CS</option>
+    <option value="CSE">CSE</option>
     <option value="IT">IT</option>
+    <option value="CE">CE</option>
   </select>
 
   <label>Semester:</label>
   <select id="semester">
     <option value="1">1</option>
     <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
   </select>
 
   <label>Subject:</label>
@@ -53,6 +264,10 @@
   <form id="attendanceForm"></form>
 
   <button id="submitBtn">✅ Submit Attendance</button>
+  <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+    <p id="teacherEmail"></p>
+    <button id="logoutBtn">🔒 Logout</button>
+  </div>
 
   <!-- Firebase SDK -->
   <script type="module">
@@ -131,7 +346,7 @@
           where("role", "==", "student"),
           where("department", "==", department),
           where("semester", "==", semester),
-          orderBy("enrollno")  // ✅ Sorted by enrollno
+          orderBy("enrollno")
         );
 
         const snapshot = await getDocs(q);
@@ -140,41 +355,65 @@
           return;
         }
 
+        // Create table
+        const table = document.createElement("table");
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
+      <tr>
+        <th>Enroll No</th>
+        <th>Name</th>
+        <th>Present</th>
+        <th>Absent</th>
+      </tr>
+    `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+
         snapshot.forEach(doc => {
           const student = doc.data();
           const id = doc.id;
           studentDataMap[id] = student;
 
-          const div = document.createElement("div");
-          div.className = "student-line";
+          const row = document.createElement("tr");
 
-          const label = document.createElement("label");
-          label.textContent = `${student.enrollno} - ${student.name}: `;
+          const enrollTd = document.createElement("td");
+          enrollTd.textContent = student.enrollno;
+          const nameTd = document.createElement("td");
+          nameTd.textContent = student.name;
 
+          const presentTd = document.createElement("td");
           const presentRadio = document.createElement("input");
           presentRadio.type = "radio";
           presentRadio.name = id;
           presentRadio.value = "Present";
           presentRadio.required = true;
+          presentTd.appendChild(presentRadio);
 
+          const absentTd = document.createElement("td");
           const absentRadio = document.createElement("input");
           absentRadio.type = "radio";
           absentRadio.name = id;
           absentRadio.value = "Absent";
+          absentTd.appendChild(absentRadio);
 
-          div.appendChild(label);
-          div.appendChild(presentRadio);
-          div.append(" Present ");
-          div.appendChild(absentRadio);
-          div.append(" Absent");
+          row.appendChild(enrollTd);
+          row.appendChild(nameTd);
+          row.appendChild(presentTd);
+          row.appendChild(absentTd);
 
-          form.appendChild(div);
+          tbody.appendChild(row);
         });
+
+        table.appendChild(tbody);
+        form.appendChild(table);
       } catch (error) {
         console.error("Error fetching students:", error);
         form.innerHTML = "<p>Error fetching student data.</p>";
       }
     }
+
+
 
     async function submitAttendance() {
       const form = document.getElementById("attendanceForm");
@@ -213,9 +452,14 @@
       alert("✅ Attendance submitted!");
       form.reset();
     }
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await auth.signOut();
+      window.location.href = "index.html";
+    });
 
     document.getElementById("loadBtn").addEventListener("click", loadStudents);
     document.getElementById("submitBtn").addEventListener("click", submitAttendance);
   </script>
 </body>
+
 </html>
